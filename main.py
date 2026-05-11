@@ -6,7 +6,6 @@ from tensorflow.keras.models import load_model
 import logging
 import sys
 
-# 配置日志，方便排查部署问题
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -14,14 +13,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# 初始化 FastAPI
 app = FastAPI(
     title="API de Prédiction de la Qualité du Vin Rouge",
     description="输入红酒理化指标，实时预测其质量分数 (3~8)",
     version="1.0"
 )
 
-# 加载模型（适配 Render 部署路径）
 BASE_DIR = Path(__file__).resolve().parent
 model_path = BASE_DIR / "wine_model.keras"
 model = None
@@ -40,7 +37,6 @@ try:
 except Exception as e:
     logger.error(f"❌ 模型加载失败: {str(e)}", exc_info=True)
 
-# 定义请求数据模型（和训练时的特征顺序完全一致）
 class WineData(BaseModel):
     fixed_acidity: float
     volatile_acidity: float
@@ -54,7 +50,6 @@ class WineData(BaseModel):
     sulphates: float
     alcohol: float
 
-# 预测接口（带错误捕获，避免500报错）
 @app.post("/predict")
 def predict_quality(wine: WineData):
     try:
@@ -74,7 +69,6 @@ def predict_quality(wine: WineData):
         logger.error(f"❌ 预测失败: {str(e)}", exc_info=True)
         return {"status": "error", "message": str(e)}
 
-# 根路径，用于快速确认服务是否正常运行
 @app.get("/")
 def root():
     return {

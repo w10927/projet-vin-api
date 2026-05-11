@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import pandas as pd
 from pathlib import Path
-import tensorflow as tf
+from tf_keras.models import load_model
 
 app = FastAPI(
     title="API de Prédiction de la Qualité du Vin Rouge",
@@ -12,7 +12,7 @@ app = FastAPI(
 
 BASE_DIR = Path(__file__).resolve().parent
 model_path = BASE_DIR / "wine_model.keras"
-model = tf.keras.models.load_model(model_path)
+model = load_model(model_path)
 
 class WineData(BaseModel):
     fixed_acidity: float
@@ -29,12 +29,12 @@ class WineData(BaseModel):
 
 @app.post("/predict", summary="Prédire la qualité du vin")
 def predict_quality(wine: WineData):
-        data = pd.DataFrame([wine.dict()])
+    
+    data = pd.DataFrame([wine.dict()])
     
        prediction = model.predict(data, verbose=0)
     
-   
-    return {"quality_score": round(float(prediction[0][0]), 1)}
+        return {"quality_score": round(float(prediction[0][0]), 1)}
 
 @app.get("/")
 def root():

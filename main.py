@@ -1,23 +1,19 @@
-# main.py 最终完美版
 from fastapi import FastAPI
 import pickle
 import pandas as pd
 from pydantic import BaseModel
 
-app = FastAPI()
+app = FastAPI(title="Wine Quality API")
 
-# 加载我们刚生成的模型
-try:
-    with open("wine_model.pkl", "rb") as f:
-        model = pickle.load(f)
-    with open("scaler.pkl", "rb") as f:
-        scaler = pickle.load(f)
-except:
-    model = None
-    scaler = None
+# 加载模型
+with open("wine_model.pkl", "rb") as f:
+    model = pickle.load(f)
 
-# 输入数据结构
-class WineFeatures(BaseModel):
+with open("scaler.pkl", "rb") as f:
+    scaler = pickle.load(f)
+
+# 输入结构
+class WineInput(BaseModel):
     fixed_acidity: float
     volatile_acidity: float
     citric_acid: float
@@ -30,19 +26,15 @@ class WineFeatures(BaseModel):
     sulphates: float
     alcohol: float
 
-# 首页
+# 测试接口
 @app.get("/")
 def home():
-    return {"status": "运行正常 ✅"}
+    return {"status": "API 运行正常 ✅"}
 
 # 预测接口
 @app.post("/predict")
-def predict(data: WineFeatures):
-    if not model or not scaler:
-        return {"error": "模型未加载"}
-    
-    df = pd.DataFrame([data.dict()])
+def predict(input: WineInput):
+    df = pd.DataFrame([input.dict()])
     scaled = scaler.transform(df)
-    result = model.predict(scaled)[0]
-    
-    return {"红酒质量预测": round(float(result), 2)}
+    prediction = model.predict(scaled)
+    return {"quality_prediction": round(float(prediction[0]), 2)}

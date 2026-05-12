@@ -1,6 +1,5 @@
 # 葡萄酒质量预测系统 / Système de prédiction de la qualité du vin
 import streamlit as st
-import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
@@ -43,14 +42,14 @@ if st.button("🔍 检测质量 / Vérifier la qualité"):
     ]]
     
     input_scaled = scaler.transform(input_data)
-    prediction = model.predict(input_sc)
+    prediction = model.predict(input_scaled)
     note = int(prediction[0])
 
     # ==================== 结果显示（双语！重点！）====================
     st.success(f"🎯 预测质量分数：{note} / 10\n"
                f"🎯 Qualité prédite : {note} / 10")
 
-    # 可选：等级评价（双语）
+    # 品质评价（双语）
     if note >= 7:
         st.info("⭐ 优质葡萄酒 / Vin de qualité supérieure")
     elif note >= 5:
